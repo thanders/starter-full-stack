@@ -1,11 +1,16 @@
-import { Hono } from 'hono'
+import { Hono, Context } from 'hono'
 import { serveStatic } from 'hono/deno'
 import { HTTPException } from "hono/http-exception";
 import { exists } from "@std/fs"
+import { controller, setupGracefulShutdown } from "./lifecycle.ts";
+import userRoutes from "./src/routes/usersRoute.ts";
+
+setupGracefulShutdown();
+
 
 const app = new Hono()
 
-app.onError((err, c) => {
+app.onError((err, c: Context) => {
   if (err instanceof HTTPException) {
     return err.getResponse() 
   }
@@ -15,12 +20,7 @@ app.onError((err, c) => {
 })
 
 // 1. API ROUTES 
-app.get('/api/hello', (c) => {
-  return c.json({ 
-    message: 'Hello Hono backend',
-    timestamp: new Date().toISOString() 
-  })
-})
+app.route('/api/users', userRoutes);
 
 // 2. SERVE STATIC ASSETS
 app.use('/assets/*', serveStatic({ root: './frontend/dist' }))
@@ -41,4 +41,4 @@ app.get('*', async (c) => {
   return c.html(html)
 })
 
-Deno.serve({ port: 8000 }, app.fetch)
+Deno.serve({ port: 8000, signal: controller.signal }, app.fetch)

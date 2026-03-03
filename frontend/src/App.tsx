@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Home from './pages/Home.tsx';
 import NotFound from "./pages/NotFound.tsx";
+import { UserList } from './components/UserList.tsx';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/feed" element={<UserList />} />
       </Routes>
     </BrowserRouter>
   )
